@@ -1,0 +1,7 @@
+{
+  "node": true,
+  "-W030": true,
+  "globals": {
+    "window": true
+  }
+}

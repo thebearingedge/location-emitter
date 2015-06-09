@@ -1,0 +1,39 @@
+{
+  "name": "lokation",
+  "version": "0.0.1",
+  "description": "A simple wrapper service for managing window.location",
+  "main": "lokation.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter list",
+    "tdd": "./node_modules/.bin/mocha --reporter min --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thebearingedge/lokation.git"
+  },
+  "keywords": [
+    "window",
+    "location",
+    "url",
+    "hash",
+    "route",
+    "events"
+  ],
+  "author": "Tim Davis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thebearingedge/lokation/issues"
+  },
+  "homepage": "https://github.com/thebearingedge/lokation#readme",
+  "devDependencies": {
+    "chai": "^3.0.0",
+    "jsdom": "^5.4.3",
+    "mocha": "^2.2.5",
+    "mocha-jsdom": "^0.4.0"
+  },
+  "dependencies": {
+    "global": "^4.3.0",
+    "object-assign": "^3.0.0",
+    "xtend": "^4.0.0"
+  }
+}
