@@ -220,6 +220,7 @@ describe('Lokation', function () {
       expect(hashStub.called).to.equal(false);
     });
 
+
     it('should return the hash if #html5 is false', function () {
       lokation = new Lokation({ html5: false });
       var fullPathStub = sinon.stub(lokation, '_getFullPath');
@@ -230,6 +231,7 @@ describe('Lokation', function () {
       expect(fullPathStub.called).to.equal(false);
       expect(hashStub.calledOnce).to.equal(true);
     });
+
 
     it('should set the hash if #html5 is false', function () {
       lokation = new Lokation({ html5: false });
@@ -279,19 +281,34 @@ describe('Lokation', function () {
 
   describe('#replace(fullPath)', function () {
 
+    it('should default to the current full path', function () {
+      lokation = new Lokation();
+      var fullPathSpy = sinon.spy(lokation, '_getFullPath');
+      var replaceStateStub = sinon.stub(window.history, 'replaceState');
+      sinon.stub(lokation, '_onPopState');
+
+      lokation.replace();
+
+      expect(fullPathSpy.calledOnce).to.equal(true);
+      expect(fullPathSpy).to.have.been.calledWithExactly();
+      replaceStateStub.restore();
+    });
+
+
     it('should call replaceState and emit event', function () {
       lokation = new Lokation();
       var newUrl = '/foo/bar';
-      var replaceStateStub = sinon.spy(window.history, 'replaceState');
-      var emitStub = sinon.spy(lokation, 'emit');
+      var replaceStateStub = sinon.stub(window.history, 'replaceState');
+      var onPopStub = sinon.stub(lokation, '_onPopState');
 
       lokation.replace(newUrl);
 
       expect(replaceStateStub.calledOnce).to.equal(true);
       expect(replaceStateStub).to.have.been.calledWithExactly({}, null, newUrl);
 
-      expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
+      expect(onPopStub.calledOnce).to.equal(true);
+
+      replaceStateStub.restore();
     });
 
 
@@ -331,8 +348,6 @@ describe('Lokation', function () {
       expect(emitStub).to.have.been.calledWithExactly('urlchange', '/contact');
     });
 
-
   });
-
 
 });

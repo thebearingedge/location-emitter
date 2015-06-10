@@ -26,13 +26,13 @@ assign(Lokation.prototype, EventEmitter.prototype, {
     if (fullPath === undefined) {
       return this.html5 ? this._getFullPath() : this.hash();
     }
-    else if (this.html5) {
-      return this._setFullPath(fullPath);
-    }
     else {
-      return this.hash(fullPath);
+      if (this.html5) {
+        return this._setFullPath(fullPath);
+      }
     }
 
+    return this.hash(fullPath);
   },
 
 
@@ -54,26 +54,22 @@ assign(Lokation.prototype, EventEmitter.prototype, {
 
       window.history.replaceState({}, null, fullPath);
 
-      this._onPopState();
+      return this._onPopState();
+    }
+
+    var href = window.location.href;
+    var hashIndex = href.indexOf('#');
+
+    if (hashIndex > -1) {
+      href = href.slice(0, hashIndex + 1) + fullPath;
     }
     else {
-
-      var href = window.location.href;
-      var hashIndex = href.indexOf('#');
-
-      if (hashIndex > -1) {
-        href = href.slice(0, hashIndex + 1) + fullPath;
-      }
-      else {
-        href = href + '#' + fullPath;
-      }
-
-      window.location.replace(href);
-
-      this._onHashChange({ newURL : href });
+      href = href + '#' + fullPath;
     }
 
-    return this;
+    window.location.replace(href);
+
+    return this._onHashChange({ newURL : href });
   },
 
 
@@ -108,9 +104,7 @@ assign(Lokation.prototype, EventEmitter.prototype, {
 
     window.history.pushState({}, null, fullPath);
 
-    this._onPopState();
-
-    return this;
+    return this._onPopState();
   },
 
 
@@ -119,12 +113,16 @@ assign(Lokation.prototype, EventEmitter.prototype, {
     var hash = this._getHash(event.newURL);
 
     this.emit('urlchange', hash);
+
+    return this;
   },
 
 
   _onPopState: function () {
 
     this.emit('urlchange', this._getFullPath());
+
+    return this;
   }
 
 
