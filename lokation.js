@@ -108,7 +108,7 @@ assign(Lokation.prototype, EventEmitter.prototype, {
 
     window.history.pushState({}, null, fullPath);
 
-    this.emit('urlchange', fullPath);
+    this._onPopState();
 
     return this;
   },
