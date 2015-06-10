@@ -166,6 +166,7 @@ describe('Lokation', function () {
 
   });
 
+
   describe('#_getFullPath()', function () {
 
     it('should retrieve the current location path', function () {
@@ -177,6 +178,159 @@ describe('Lokation', function () {
 
       expect(fullPath).to.equal('/path?to=query#hash');
     });
+
+  });
+
+
+  describe('#hash(urlHash)', function () {
+
+    it('should set the url hash', function () {
+      window.location.href = 'example.com/path';
+      window.location.hash = 'foo';
+      lokation = new Lokation();
+
+      lokation.hash('bar');
+
+      expect(window.location.hash).to.equal('#bar');
+    });
+
+
+    it('should get the url hash', function () {
+      window.location.href = 'example.com/path';
+      window.location.hash = 'baz';
+      lokation = new Lokation();
+
+      var urlHash = lokation.hash();
+      expect(urlHash).to.equal('baz');
+    });
+
+
+  });
+
+  describe('#get(urlPath)', function () {
+
+    it('should return the full path if #html5 is true', function () {
+      lokation = new Lokation();
+      var fullPathStub = sinon.stub(lokation, '_getFullPath');
+      var hashStub = sinon.stub(lokation, 'hash');
+
+      lokation.url();
+
+      expect(fullPathStub.calledOnce).to.equal(true);
+      expect(hashStub.called).to.equal(false);
+    });
+
+    it('should return the hash if #html5 is false', function () {
+      lokation = new Lokation({ html5: false });
+      var fullPathStub = sinon.stub(lokation, '_getFullPath');
+      var hashStub = sinon.stub(lokation, 'hash');
+
+      lokation.url();
+
+      expect(fullPathStub.called).to.equal(false);
+      expect(hashStub.calledOnce).to.equal(true);
+    });
+
+    it('should set the hash if #html5 is false', function () {
+      lokation = new Lokation({ html5: false });
+      var fullPathStub = sinon.stub(lokation, '_setFullPath');
+      var hashStub = sinon.stub(lokation, 'hash');
+
+      lokation.url('/foo');
+
+      expect(fullPathStub.called).to.equal(false);
+      expect(hashStub.calledOnce).to.equal(true);
+    });
+
+
+    it('should set the hash if #html5 is false', function () {
+      lokation = new Lokation();
+      var fullPathStub = sinon.stub(lokation, '_setFullPath');
+      var hashStub = sinon.stub(lokation, 'hash');
+
+      lokation.url('/foo');
+
+      expect(fullPathStub.calledOnce).to.equal(true);
+      expect(hashStub.called).to.equal(false);
+    });
+
+  });
+
+
+  describe('#_setFullPath(url)', function () {
+
+    it('should call pushState on window.history and emit event', function () {
+      lokation = new Lokation();
+      var newUrl = '/foo/bar';
+      var pushStateStub = sinon.spy(window.history, 'pushState');
+      var emitStub = sinon.spy(lokation, 'emit');
+
+      lokation._setFullPath(newUrl);
+
+      expect(pushStateStub.calledOnce).to.equal(true);
+      expect(pushStateStub).to.have.been.calledWithExactly({}, null, newUrl);
+
+      expect(emitStub.calledOnce).to.equal(true);
+      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
+    });
+
+  });
+
+
+  describe('#replace(fullPath)', function () {
+
+    it('should call replaceState and emit event', function () {
+      lokation = new Lokation();
+      var newUrl = '/foo/bar';
+      var replaceStateStub = sinon.spy(window.history, 'replaceState');
+      var emitStub = sinon.spy(lokation, 'emit');
+
+      lokation.replace(newUrl);
+
+      expect(replaceStateStub.calledOnce).to.equal(true);
+      expect(replaceStateStub).to.have.been.calledWithExactly({}, null, newUrl);
+
+      expect(emitStub.calledOnce).to.equal(true);
+      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
+    });
+
+
+    it('should call location.replace with new hash', function () {
+      lokation = new Lokation({ html5: false });
+      var href = window.location.href = 'http://www.example.com';
+      var newUrl = '/foo/bar';
+      var replaced = href + '/#' + newUrl;
+      var replaceStub = sinon.spy(window.location, 'replace');
+      var emitStub = sinon.spy(lokation, 'emit');
+
+      lokation.replace(newUrl);
+
+      expect(replaceStub.calledOnce).to.equal(true);
+      expect(replaceStub).to.have.been.calledWithExactly(replaced);
+
+      expect(emitStub.calledOnce).to.equal(true);
+      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
+    });
+
+
+    it('should call location.replace with different hash', function () {
+      lokation = new Lokation({ html5: false });
+      window.location.href = 'http://www.example.com';
+      window.location.hash = '/about';
+      var newUrl = '/contact';
+      var replaced = 'http://www.example.com/#/contact';
+      var replaceStub = sinon.spy(window.location, 'replace');
+      var emitStub = sinon.spy(lokation, 'emit');
+
+      lokation.replace(newUrl);
+
+      expect(replaceStub.calledOnce).to.equal(true);
+      expect(replaceStub).to.have.been.calledWithExactly(replaced);
+
+      expect(emitStub.calledOnce).to.equal(true);
+      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/contact');
+    });
+
 
   });
 
