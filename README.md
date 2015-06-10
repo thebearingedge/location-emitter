@@ -1,4 +1,4 @@
 # lokation
-A simple wrapper service for managing `window.location`
+An observable wrapper service around `window.location`
 
 Totally not implemented yet...

@@ -164,7 +164,7 @@ describe('Lokation', function () {
 
   });
 
-  describe('#getFullPath()', function () {
+  describe('#_getFullPath()', function () {
 
     it('should retrieve the current location path', function () {
       window.location.href = 'example.com/path?to=query';

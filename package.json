@@ -1,7 +1,7 @@
 {
   "name": "lokation",
-  "version": "0.0.2",
-  "description": "A simple wrapper service for managing `window.location`",
+  "version": "0.0.3",
+  "description": "An observable wrapper service around `window.location`",
   "main": "lokation.js",
   "scripts": {
     "test": "./node_modules/.bin/gulp test",
@@ -30,10 +30,8 @@
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.0",
     "gulp-mocha": "^2.1.1",
-    "gulp-watch": "^4.2.4",
     "jsdom": "^5.4.3",
     "mocha": "^2.2.5",
-    "mocha-jsdom": "^0.4.0",
     "proxyquire": "^1.5.0",
     "sinon": "^1.14.1",
     "sinon-chai": "^2.8.0"
