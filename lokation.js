@@ -110,9 +110,7 @@ assign(Lokation.prototype, EventEmitter.prototype, {
 
   _onHashChange: function (event) {
 
-    var hash = this._getHash(event.newURL);
-
-    this.emit('urlchange', hash);
+    this.emit('urlchange', this._getHash(event.newURL));
 
     return this;
   },

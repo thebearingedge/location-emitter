@@ -284,14 +284,12 @@ describe('Lokation', function () {
     it('should default to the current full path', function () {
       lokation = new Lokation();
       var fullPathSpy = sinon.spy(lokation, '_getFullPath');
-      var replaceStateStub = sinon.stub(window.history, 'replaceState');
       sinon.stub(lokation, '_onPopState');
 
       lokation.replace();
 
       expect(fullPathSpy.calledOnce).to.equal(true);
       expect(fullPathSpy).to.have.been.calledWithExactly();
-      replaceStateStub.restore();
     });
 
 
@@ -307,12 +305,10 @@ describe('Lokation', function () {
       expect(replaceStateStub).to.have.been.calledWithExactly({}, null, newUrl);
 
       expect(onPopStub.calledOnce).to.equal(true);
-
-      replaceStateStub.restore();
     });
 
 
-    it('should call location.replace with new hash', function () {
+    it('should call location.replace with hash and emit change', function () {
       lokation = new Lokation({ html5: false });
       var href = window.location.href = 'http://www.example.com';
       var newUrl = '/foo/bar';
@@ -330,7 +326,7 @@ describe('Lokation', function () {
     });
 
 
-    it('should call location.replace with different hash', function () {
+    it('should call location.replace new hash and emit change', function () {
       lokation = new Lokation({ html5: false });
       window.location.href = 'http://www.example.com';
       window.location.hash = '/about';

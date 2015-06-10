@@ -1,6 +1,6 @@
 {
   "name": "lokation",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "An observable wrapper service around `window.location`",
   "main": "lokation.js",
   "scripts": {
