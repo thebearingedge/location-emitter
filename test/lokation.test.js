@@ -22,7 +22,7 @@ describe('Lokation', function () {
   });
 
 
-  describe('constructor', function () {
+  describe('#listen()', function () {
 
     it('should set "#html5" to `true` by default', function () {
       lokation = new Lokation();
@@ -71,6 +71,7 @@ describe('Lokation', function () {
           Lokation = proxyquire('../lokation', { 'global/window': window });
           addEventStub = sinon.stub(window, 'addEventListener');
           lokation = new Lokation({ html5: false });
+          lokation.listen();
 
           expect(addEventStub.calledOnce).to.equal(true);
           expect(addEventStub).to.have.been.calledWith('hashchange');
@@ -92,6 +93,7 @@ describe('Lokation', function () {
           Lokation = proxyquire('../lokation', { 'global/window': window });
           addEventStub = sinon.stub(window, 'addEventListener');
           lokation = new Lokation();
+          lokation.listen();
 
           expect(addEventStub.calledOnce).to.equal(true);
           expect(addEventStub).to.have.been.calledWith('popstate');

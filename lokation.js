@@ -16,13 +16,6 @@ function Lokation(options) {
     true :
     false;
 
-  if (this.html5) {
-    window.addEventListener('popstate', this._onPopState.bind(this));
-  }
-  else {
-    window.addEventListener('hashchange', this._onHashChange.bind(this));
-  }
-
 }
 
 assign(Lokation.prototype, EventEmitter.prototype, {
@@ -55,6 +48,18 @@ assign(Lokation.prototype, EventEmitter.prototype, {
     var fullPath = this._getFullPath();
 
     this.emit('urlchange', fullPath);
+  },
+
+
+  listen: function () {
+
+    if (this.html5) {
+      window.addEventListener('popstate', this._onPopState.bind(this));
+    }
+    else {
+      window.addEventListener('hashchange', this._onHashChange.bind(this));
+    }
+
   }
 
 
