@@ -1,15 +1,15 @@
 {
-  "name": "lokation",
+  "name": "location-emitter",
   "version": "1.0.1",
   "description": "An observable wrapper service around `window.location`",
-  "main": "lokation.js",
+  "main": "LocationEmitter.js",
   "scripts": {
-    "test": "./node_modules/.bin/gulp test",
+    "test": "./node_modules/.bin/mocha",
     "tdd": "./node_modules/.bin/mocha --watch"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thebearingedge/lokation.git"
+    "url": "git+https://github.com/thebearingedge/location-emitter.git"
   },
   "keywords": [
     "browser",
@@ -24,9 +24,9 @@
   "author": "Tim Davis",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thebearingedge/lokation/issues"
+    "url": "https://github.com/thebearingedge/location-emitter/issues"
   },
-  "homepage": "https://github.com/thebearingedge/lokation#readme",
+  "homepage": "https://github.com/thebearingedge/location-emitter#readme",
   "devDependencies": {
     "chai": "^3.0.0",
     "gulp": "^3.9.0",

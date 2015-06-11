@@ -1,3 +1,2 @@
 
 - something something IE and addEventListener...
-- make observable modular

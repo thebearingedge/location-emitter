@@ -12,7 +12,7 @@ var coverageConfig = {
 };
 
 gulp.task('cover', function (cb) {
-  gulp.src('lokation.js')
+  gulp.src('LocationEmitter.js')
     .pipe(istanbul())
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
@@ -24,5 +24,5 @@ gulp.task('cover', function (cb) {
 });
 
 gulp.task('tdd', function () {
-  gulp.watch(tests.concat('lokation.js'), ['cover']);
+  gulp.watch(tests.concat('LocationEmitter.js'), ['cover']);
 });
