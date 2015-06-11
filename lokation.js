@@ -12,6 +12,7 @@ function Lokation(options) {
   options || (options = {});
 
   var history = window.history;
+
   this.html5 = history && history.pushState && (options.html5 !== false) ?
     true :
     false;
@@ -19,6 +20,18 @@ function Lokation(options) {
 }
 
 assign(Lokation.prototype, EventEmitter.prototype, {
+
+  listen: function () {
+
+    if (this.html5) {
+      window.addEventListener('popstate', this._onPopState.bind(this));
+    }
+    else {
+      window.addEventListener('hashchange', this._onHashChange.bind(this));
+    }
+
+    return this;
+  },
 
 
   url: function (fullPath) {
@@ -70,19 +83,6 @@ assign(Lokation.prototype, EventEmitter.prototype, {
     window.location.replace(href);
 
     return this._onHashChange({ newURL : href });
-  },
-
-
-  listen: function () {
-
-    if (this.html5) {
-      window.addEventListener('popstate', this._onPopState.bind(this));
-    }
-    else {
-      window.addEventListener('hashchange', this._onHashChange.bind(this));
-    }
-
-    return this;
   },
 
 

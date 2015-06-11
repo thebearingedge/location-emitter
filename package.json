@@ -1,23 +1,25 @@
 {
   "name": "lokation",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "An observable wrapper service around `window.location`",
   "main": "lokation.js",
   "scripts": {
     "test": "./node_modules/.bin/gulp test",
-    "tdd": "./node_modules/.bin/mocha --reporter min --watch"
+    "tdd": "./node_modules/.bin/mocha --watch"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thebearingedge/lokation.git"
   },
   "keywords": [
+    "browser",
     "window",
     "location",
     "url",
     "hash",
     "route",
-    "events"
+    "events",
+    "emitter"
   ],
   "author": "Tim Davis",
   "license": "MIT",

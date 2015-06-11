@@ -1,4 +1,3 @@
 # lokation
-An observable wrapper service around `window.location`
+An simple observable proxy to `window.location` that applies and emits path changes.
 
-Totally not implemented yet...
