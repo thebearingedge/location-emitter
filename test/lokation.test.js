@@ -240,7 +240,8 @@ describe('Lokation', function () {
 
     it('should call `location.replace` new hash and emit change', function () {
       lokation = new Lokation({ html5: false });
-      window.location.replace('http://www.example.com/#/about');
+      window.location.href = 'http://www.example.com';
+      window.location.hash = '/about';
       var newUrl = '/contact';
       var replaced = 'http://www.example.com/#/contact';
       var replaceStub = sinon.spy(window.location, 'replace');
