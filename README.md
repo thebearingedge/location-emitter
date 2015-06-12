@@ -1,3 +1,3 @@
 # LocationEmitter
-An simple observable proxy to `window.location` that applies path changes and emits the resulting path.
+An simple observable facade to `window.location` that applies path changes and emits the resulting path.
 

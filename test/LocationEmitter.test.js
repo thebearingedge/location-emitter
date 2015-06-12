@@ -17,6 +17,7 @@ describe('LocationEmitter', function () {
 
   beforeEach(function () {
     window = jsdom.jsdom('<html><body></body></html>').defaultView;
+
     LocationEmitter = proxyquire('../LocationEmitter', {
       'global/window': window
     });
@@ -347,6 +348,5 @@ describe('LocationEmitter', function () {
     });
 
   });
-
 
 });
