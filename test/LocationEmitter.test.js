@@ -222,9 +222,9 @@ describe('LocationEmitter', function () {
 
 
     it('should replace location given a new hash and emit change', function () {
-      le = new LocationEmitter({ html5: false });
       window.location.href = 'http://www.example.com';
       window.location.hash = '/about';
+      le = new LocationEmitter({ html5: false });
       var newUrl = '/contact';
       var replacement = 'http://www.example.com/#/contact';
       var replaceSpy = sinon.spy(window.location, 'replace');

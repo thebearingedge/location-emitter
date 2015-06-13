@@ -76,25 +76,20 @@ LocationEmitter.prototype.replace = function replace(fullPath) {
 
   fullPath || (fullPath = this._getFullPath());
 
-  if (this.html5) {
-
-    window.history.replaceState({}, null, fullPath);
-
-    return this._onPopState();
-  }
+  if (this.html5) return this._replaceState(fullPath);
 
   var location = window.location;
-  var href = location.href;
-  var hashIndex = href.indexOf('#');
-  var hashMark = location.pathname === '/'
-    ? (location.href.indexOf('/') === -1 || '/#')
-    : '#';
+  var current, currentHashIndex, currentHasHash, href;
 
-  if (hashIndex > -1) {
-    href = href.slice(0, hashIndex) + hashMark + fullPath;
+  current = location.href;
+  currentHashIndex = current.indexOf('#');
+  currentHasHash = currentHashIndex !== -1;
+
+  if (!currentHasHash && (current[current.length - 1] !== '/')) {
+    href = current + '/#' + fullPath;
   }
   else {
-    href = href + hashMark + fullPath;
+    href = current.slice(0, currentHashIndex) + '#' + fullPath;
   }
 
   location.replace(href);
@@ -152,6 +147,14 @@ LocationEmitter.prototype._onPopState = function _onPopState() {
   this._emit(this._getFullPath());
 
   return this;
+};
+
+
+LocationEmitter.prototype._replaceState = function _replaceState(fullPath) {
+
+  window.history.replaceState({}, null, fullPath);
+
+  return this._onPopState();
 };
 
 
