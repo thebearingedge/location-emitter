@@ -209,15 +209,11 @@ describe('LocationEmitter', function () {
       var newUrl = '/foo/bar';
       var replacement = 'http://www.example.com/#/foo/bar';
       var replaceSpy = sinon.spy(window.location, 'replace');
-      var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
       expect(replaceSpy.calledOnce).to.equal(true);
       expect(replaceSpy).to.have.been.calledWithExactly(replacement);
-
-      expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('/foo/bar');
     });
 
 
@@ -228,15 +224,11 @@ describe('LocationEmitter', function () {
       var newUrl = '/contact';
       var replacement = 'http://www.example.com/#/contact';
       var replaceSpy = sinon.spy(window.location, 'replace');
-      var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
       expect(replaceSpy.calledOnce).to.equal(true);
       expect(replaceSpy).to.have.been.calledWithExactly(replacement);
-
-      expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('/contact');
     });
 
 
@@ -247,15 +239,11 @@ describe('LocationEmitter', function () {
       var newUrl = 'baz';
       var replacement = 'http://www.example.com/foo#baz';
       var replaceSpy = sinon.spy(window.location, 'replace');
-      var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
       expect(replaceSpy.calledOnce).to.equal(true);
       expect(replaceSpy).to.have.been.calledWithExactly(replacement);
-
-      expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('baz');
     });
 
 

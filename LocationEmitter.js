@@ -92,9 +92,7 @@ LocationEmitter.prototype.replace = function replace(fullPath) {
     href = current.slice(0, currentHashIndex) + '#' + fullPath;
   }
 
-  location.replace(href);
-
-  return this._onHashChange({ newURL : href });
+  return location.replace(href);
 };
 
 
@@ -137,16 +135,12 @@ LocationEmitter.prototype._setFullPath = function _setFullPath(fullPath) {
 LocationEmitter.prototype._onHashChange = function _onHashChange() {
 
   this._emit(this.hash());
-
-  return this;
 };
 
 
 LocationEmitter.prototype._onPopState = function _onPopState() {
 
   this._emit(this._getFullPath());
-
-  return this;
 };
 
 
