@@ -37,6 +37,8 @@ LocationEmitter.prototype.listen = function listen() {
 
   window.addEventListener(eventType, listener.bind(this));
 
+  this._emit(this.url());
+
   return this;
 };
 

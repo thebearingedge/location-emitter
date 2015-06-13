@@ -1,6 +1,6 @@
 {
   "name": "location-emitter",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "An observable facade for `window.location`",
   "main": "LocationEmitter.js",
   "scripts": {
@@ -39,7 +39,6 @@
     "sinon-chai": "^2.8.0"
   },
   "dependencies": {
-    "global": "^4.3.0",
-    "object-assign": "^3.0.0"
+    "global": "^4.3.0"
   }
 }
