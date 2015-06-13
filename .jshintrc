@@ -1,6 +1,7 @@
 {
   "node": true,
   "-W030": true,
+  "laxbreak": true,
   "globals": {
     "window": true
   }

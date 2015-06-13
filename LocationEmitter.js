@@ -5,9 +5,9 @@ var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 var window = require('global/window');
 
-module.exports = Lokation;
+module.exports = LocationEmitter;
 
-function Lokation(options) {
+function LocationEmitter(options) {
 
   options || (options = {});
 
@@ -19,7 +19,7 @@ function Lokation(options) {
 
 }
 
-assign(Lokation.prototype, EventEmitter.prototype, {
+assign(LocationEmitter.prototype, EventEmitter.prototype, {
 
   listen: function () {
 
@@ -51,9 +51,13 @@ assign(Lokation.prototype, EventEmitter.prototype, {
 
   hash: function (urlHash) {
 
-    if (urlHash === undefined) return this._getHash(this._getFullPath());
+    var location = window.location;
 
-    window.location.hash = urlHash;
+    if (urlHash === undefined) {
+      return location.hash ? location.hash.substr(1) : '';
+    }
+
+    location.hash = urlHash;
 
     return this;
   },
@@ -70,25 +74,23 @@ assign(Lokation.prototype, EventEmitter.prototype, {
       return this._onPopState();
     }
 
-    var href = window.location.href;
+    var location = window.location;
+    var href = location.href;
     var hashIndex = href.indexOf('#');
+    var hashMark = location.pathname === '/'
+      ? '/#'
+      : '#';
 
     if (hashIndex > -1) {
-      href = href.slice(0, hashIndex + 1) + fullPath;
+      href = href.slice(0, hashIndex) + hashMark + fullPath;
     }
     else {
-      href = href + '#' + fullPath;
+      href = href + hashMark + fullPath;
     }
 
-    window.location.replace(href);
+    location.replace(href);
 
     return this._onHashChange({ newURL : href });
-  },
-
-
-  _getHash: function (url) {
-
-    return url.slice(url.indexOf('#') + 1);
   },
 
 
@@ -108,9 +110,9 @@ assign(Lokation.prototype, EventEmitter.prototype, {
   },
 
 
-  _onHashChange: function (event) {
+  _onHashChange: function () {
 
-    this.emit('urlchange', this._getHash(event.newURL));
+    this.emit('urlchange', this.hash());
 
     return this;
   },
@@ -122,6 +124,5 @@ assign(Lokation.prototype, EventEmitter.prototype, {
 
     return this;
   }
-
 
 });

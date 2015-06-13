@@ -1,7 +1,7 @@
 
 'use strict';
 
-var jsdom = require('jsdom');
+var mockLocation = require('mock-location');
 var proxyquire = require('proxyquire');
 var chai = require('chai');
 var expect = require('chai').expect;
@@ -10,17 +10,25 @@ var sinon = require('sinon');
 
 chai.use(sinonChai);
 
-
 describe('LocationEmitter', function () {
 
   var window, LocationEmitter, le;
 
   beforeEach(function () {
-    window = jsdom.jsdom('<html><body></body></html>').defaultView;
+
+    window = {
+      addEventListener: sinon.spy(),
+      history: {
+        pushState: sinon.spy(),
+        replaceState: sinon.spy()
+      },
+      location: mockLocation('http://www.example.com')
+    };
 
     LocationEmitter = proxyquire('../LocationEmitter', {
       'global/window': window
     });
+
   });
 
 
@@ -39,7 +47,7 @@ describe('LocationEmitter', function () {
 
 
   it('should fallback html5 without window.history', function () {
-    window.history.pushState = undefined;
+    window.history = undefined;
 
     le = new LocationEmitter();
 
@@ -48,7 +56,7 @@ describe('LocationEmitter', function () {
 
 
   it('should ignore html5 option without window.history', function () {
-    window.history.pushState = undefined;
+    window.history = undefined;
 
     le = new LocationEmitter({ html5: true });
 
@@ -70,51 +78,26 @@ describe('LocationEmitter', function () {
 
   describe('#listen()', function () {
 
-    it('should add a `hashchange` listener if html5 is false', function (done) {
+    it('should add a `hashchange` listener if html5 is false', function () {
+      var addEventSpy = window.addEventListener;
 
-      var addEventStub;
+      le = new LocationEmitter({ html5: false });
+      le.listen();
 
-      jsdom.env({
-        html: '<html><body></body></html>',
-        loaded: function (err, window) {
-
-          LocationEmitter = proxyquire('../LocationEmitter', {
-            'global/window': window
-          });
-          addEventStub = sinon.stub(window, 'addEventListener');
-          le = new LocationEmitter({ html5: false });
-          le.listen();
-
-          expect(addEventStub.calledOnce).to.equal(true);
-          expect(addEventStub).to.have.been.calledWith('hashchange');
-          done();
-        }
-      });
+      expect(addEventSpy.calledOnce).to.equal(true);
+      expect(addEventSpy).to.have.been.calledWith('hashchange');
 
     });
 
 
-    it('should add a `popstate` listener if html5 is true', function (done) {
+    it('should add a `popstate` listener if html5 is true', function () {
+      var addEventSpy = window.addEventListener;
 
-      var addEventStub;
+      le = new LocationEmitter();
+      le.listen();
 
-      jsdom.env({
-        html: '<html><body></body></html>',
-        loaded: function (err, window) {
-
-          LocationEmitter = proxyquire('../LocationEmitter', {
-            'global/window': window
-          });
-          addEventStub = sinon.stub(window, 'addEventListener');
-          le = new LocationEmitter();
-          le.listen();
-
-          expect(addEventStub.calledOnce).to.equal(true);
-          expect(addEventStub).to.have.been.calledWith('popstate');
-          done();
-        }
-      });
-
+      expect(addEventSpy.calledOnce).to.equal(true);
+      expect(addEventSpy).to.have.been.calledWith('popstate');
     });
 
   });
@@ -211,10 +194,10 @@ describe('LocationEmitter', function () {
     });
 
 
-    it('should call `history.replaceState` and emit event', function () {
+    it('should call `history.replaceState` and call handler', function () {
       le = new LocationEmitter();
       var newUrl = '/foo/bar';
-      var replaceStateStub = sinon.stub(window.history, 'replaceState');
+      var replaceStateStub = window.history.replaceState;
       var onPopStub = sinon.stub(le, '_onPopState');
 
       le.replace(newUrl);
@@ -228,16 +211,15 @@ describe('LocationEmitter', function () {
 
     it('should call `location.replace` with hash and emit change', function () {
       le = new LocationEmitter({ html5: false });
-      var href = window.location.href = 'http://www.example.com';
       var newUrl = '/foo/bar';
-      var replaced = href + '/#' + newUrl;
-      var replaceStub = sinon.spy(window.location, 'replace');
+      var replacement = 'http://www.example.com/#/foo/bar';
+      var replaceSpy = sinon.spy(window.location, 'replace');
       var emitStub = sinon.spy(le, 'emit');
 
       le.replace(newUrl);
 
-      expect(replaceStub.calledOnce).to.equal(true);
-      expect(replaceStub).to.have.been.calledWithExactly(replaced);
+      expect(replaceSpy.calledOnce).to.equal(true);
+      expect(replaceSpy).to.have.been.calledWithExactly(replacement);
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
@@ -265,23 +247,10 @@ describe('LocationEmitter', function () {
   });
 
 
-  describe('#_getHash(url)', function () {
-
-    it('should retrieve the hash of the passed url', function () {
-      le = new LocationEmitter();
-
-      var hash = le._getHash('example.com/#/hash');
-      expect(hash).to.equal('/hash');
-    });
-
-  });
-
-
   describe('#_getFullPath()', function () {
 
     it('should retrieve the current location path', function () {
-      window.location.href = 'example.com/path?to=query';
-      window.location.hash = 'hash';
+      window.location.href = 'example.com/path?to=query#hash';
       le = new LocationEmitter();
 
       var fullPath = le._getFullPath();
@@ -294,19 +263,18 @@ describe('LocationEmitter', function () {
 
   describe('#_setFullPath(url)', function () {
 
-    it('should call pushState on window.history and emit event', function () {
+    it('should call pushState on window.history and call handler', function () {
       le = new LocationEmitter();
       var newUrl = '/foo/bar';
-      var pushStateStub = sinon.spy(window.history, 'pushState');
-      var emitStub = sinon.spy(le, 'emit');
+      var pushStateSpy = window.history.pushState;
+      var onPopStub = sinon.spy(le, '_onPopState');
 
       le._setFullPath(newUrl);
 
-      expect(pushStateStub.calledOnce).to.equal(true);
-      expect(pushStateStub).to.have.been.calledWithExactly({}, null, newUrl);
+      expect(pushStateSpy.calledOnce).to.equal(true);
+      expect(pushStateSpy).to.have.been.calledWithExactly({}, null, newUrl);
 
-      expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
+      expect(onPopStub.calledOnce).to.equal(true);
     });
 
   });
@@ -315,14 +283,11 @@ describe('LocationEmitter', function () {
   describe('#_onHashChange(event)', function () {
 
     it('should emit the new hash fragment', function () {
-      var hashEvent, emitStub;
-
-      hashEvent = new window.Event('hashchange');
+      window.location.href = 'www.example.com/#/hash';
       le = new LocationEmitter();
-      emitStub = sinon.stub(le, 'emit');
-      hashEvent.newURL = 'www.example.com/#/hash';
+      var emitStub = sinon.stub(le, 'emit');
 
-      le._onHashChange(hashEvent);
+      le._onHashChange();
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been.calledWithExactly('urlchange', '/hash');
@@ -334,10 +299,8 @@ describe('LocationEmitter', function () {
   describe('#_onPopState()', function () {
 
     it('should emit the new full path', function () {
-      var emitStub;
-
       le = new LocationEmitter();
-      emitStub = sinon.stub(le, 'emit');
+      var emitStub = sinon.stub(le, 'emit');
       window.location.href = 'http://www.example.com/full-path?and=query';
 
       le._onPopState();
