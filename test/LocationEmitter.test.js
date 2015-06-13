@@ -227,13 +227,13 @@ describe('LocationEmitter', function () {
       window.location.hash = '/about';
       var newUrl = '/contact';
       var replacement = 'http://www.example.com/#/contact';
-      var replaceStub = sinon.spy(window.location, 'replace');
+      var replaceSpy = sinon.spy(window.location, 'replace');
       var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
-      expect(replaceStub.calledOnce).to.equal(true);
-      expect(replaceStub).to.have.been.calledWithExactly(replacement);
+      expect(replaceSpy.calledOnce).to.equal(true);
+      expect(replaceSpy).to.have.been.calledWithExactly(replacement);
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been.calledWithExactly('/contact');
@@ -246,16 +246,28 @@ describe('LocationEmitter', function () {
       window.location.hash = 'bar';
       var newUrl = 'baz';
       var replacement = 'http://www.example.com/foo#baz';
-      var replaceStub = sinon.spy(window.location, 'replace');
+      var replaceSpy = sinon.spy(window.location, 'replace');
       var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
-      expect(replaceStub.calledOnce).to.equal(true);
-      expect(replaceStub).to.have.been.calledWithExactly(replacement);
+      expect(replaceSpy.calledOnce).to.equal(true);
+      expect(replaceSpy).to.have.been.calledWithExactly(replacement);
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been.calledWithExactly('baz');
+    });
+
+
+    it('should set a "/" hash path', function () {
+      window.location.href = 'http://www.example.com';
+      var replaceSpy = sinon.spy(window.location, 'replace');
+      le = new LocationEmitter({ html5: false });
+
+      le.replace();
+
+      expect(replaceSpy).to.have.been
+        .calledWithExactly('http://www.example.com/#/');
     });
 
   });

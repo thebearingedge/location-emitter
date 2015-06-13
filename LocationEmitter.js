@@ -87,7 +87,7 @@ LocationEmitter.prototype.replace = function replace(fullPath) {
   var href = location.href;
   var hashIndex = href.indexOf('#');
   var hashMark = location.pathname === '/'
-    ? '/#'
+    ? (location.href.indexOf('/') === -1 || '/#')
     : '#';
 
   if (hashIndex > -1) {
