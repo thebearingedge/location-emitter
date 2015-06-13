@@ -1,2 +1,3 @@
 
 - something something IE and addEventListener...
+- clean up hash and replace

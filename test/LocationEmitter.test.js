@@ -64,18 +64,6 @@ describe('LocationEmitter', function () {
   });
 
 
-  describe('EventEmitter.prototype', function () {
-
-    it('should have EventEmitter instance methods', function () {
-      le = new LocationEmitter();
-
-      expect(typeof le.emit).to.equal('function');
-      expect(typeof le.on).to.equal('function');
-    });
-
-  });
-
-
   describe('#listen()', function () {
 
     it('should add a `hashchange` listener if html5 is false', function () {
@@ -214,7 +202,7 @@ describe('LocationEmitter', function () {
       var newUrl = '/foo/bar';
       var replacement = 'http://www.example.com/#/foo/bar';
       var replaceSpy = sinon.spy(window.location, 'replace');
-      var emitStub = sinon.spy(le, 'emit');
+      var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
@@ -222,7 +210,7 @@ describe('LocationEmitter', function () {
       expect(replaceSpy).to.have.been.calledWithExactly(replacement);
 
       expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/foo/bar');
+      expect(emitStub).to.have.been.calledWithExactly('/foo/bar');
     });
 
 
@@ -233,7 +221,7 @@ describe('LocationEmitter', function () {
       var newUrl = '/contact';
       var replaced = 'http://www.example.com/#/contact';
       var replaceStub = sinon.spy(window.location, 'replace');
-      var emitStub = sinon.spy(le, 'emit');
+      var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
@@ -241,7 +229,38 @@ describe('LocationEmitter', function () {
       expect(replaceStub).to.have.been.calledWithExactly(replaced);
 
       expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/contact');
+      expect(emitStub).to.have.been.calledWithExactly('/contact');
+    });
+
+  });
+
+
+  describe('#onChange(observer)', function () {
+
+    it('should register a change observer', function () {
+      le = new LocationEmitter();
+      var observer = function () {};
+
+      le.onChange(observer);
+
+      expect(le._subscribers[0]).to.equal(observer);
+    });
+
+
+    it('should return an unsubscribe function', function () {
+      var first = function () {};
+      var second = function () {};
+      le = new LocationEmitter();
+
+      var firstOff = le.onChange(first);
+      var secondOff = le.onChange(second);
+
+      expect(le._subscribers.length).to.equal(2);
+      firstOff();
+      expect(le._subscribers.length).to.equal(1);
+      expect(le._subscribers[0]).to.equal(second);
+      secondOff();
+      expect(le._subscribers.length).to.equal(0);
     });
 
   });
@@ -285,12 +304,12 @@ describe('LocationEmitter', function () {
     it('should emit the new hash fragment', function () {
       window.location.href = 'www.example.com/#/hash';
       le = new LocationEmitter();
-      var emitStub = sinon.stub(le, 'emit');
+      var emitStub = sinon.stub(le, '_emit');
 
       le._onHashChange();
 
       expect(emitStub.calledOnce).to.equal(true);
-      expect(emitStub).to.have.been.calledWithExactly('urlchange', '/hash');
+      expect(emitStub).to.have.been.calledWithExactly('/hash');
     });
 
   });
@@ -300,14 +319,33 @@ describe('LocationEmitter', function () {
 
     it('should emit the new full path', function () {
       le = new LocationEmitter();
-      var emitStub = sinon.stub(le, 'emit');
+      var emitStub = sinon.stub(le, '_emit');
       window.location.href = 'http://www.example.com/full-path?and=query';
 
       le._onPopState();
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been
-        .calledWithExactly('urlchange', '/full-path?and=query');
+        .calledWithExactly('/full-path?and=query');
+    });
+
+  });
+
+
+  describe('#_emit(path)', function () {
+
+    it('should call each subscriber with path', function () {
+      le = new LocationEmitter();
+      var first = sinon.spy();
+      var second = sinon.spy();
+      le._subscribers = [first, second];
+
+      le._emit('/foo');
+
+      expect(first.calledOnce).to.equal(true);
+      expect(first).to.have.been.calledWithExactly('/foo');
+      expect(second.calledOnce).to.equal(true);
+      expect(second).to.have.been.calledWithExactly('/foo');
     });
 
   });

@@ -1,11 +1,11 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var assign = require('object-assign');
 var window = require('global/window');
 
+
 module.exports = LocationEmitter;
+
 
 function LocationEmitter(options) {
 
@@ -13,116 +13,149 @@ function LocationEmitter(options) {
 
   var history = window.history;
 
-  this.html5 = history && history.pushState && (options.html5 !== false) ?
-    true :
-    false;
+  this.html5 = history && history.pushState && (options.html5 !== false)
+    ? true
+    : false;
+
+  this._subscribers = [];
 
 }
 
-assign(LocationEmitter.prototype, EventEmitter.prototype, {
 
-  listen: function () {
+LocationEmitter.prototype.listen = function listen() {
 
-    if (this.html5) {
-      window.addEventListener('popstate', this._onPopState.bind(this));
-    }
-    else {
-      window.addEventListener('hashchange', this._onHashChange.bind(this));
-    }
+  var eventType, listener;
 
-    return this;
-  },
+  if (this.html5) {
+    eventType = 'popstate';
+    listener = this._onPopState;
+  }
+  else {
+    eventType = 'hashchange';
+    listener = this._onHashChange;
+  }
+
+  window.addEventListener(eventType, listener.bind(this));
+
+  return this;
+};
 
 
-  url: function (fullPath) {
+LocationEmitter.prototype.url = function url(fullPath) {
 
-    if (fullPath === undefined) {
-      return this.html5 ? this._getFullPath() : this.hash();
-    }
-    else {
-      if (this.html5) {
-        return this._setFullPath(fullPath);
+  if (fullPath === undefined) {
+    return this.html5 ? this._getFullPath() : this.hash();
+  }
+  else if (this.html5){
+    return this._setFullPath(fullPath);
+  }
+
+  return this.hash(fullPath);
+};
+
+
+LocationEmitter.prototype.hash = function hash(urlHash) {
+
+  var location = window.location;
+
+  if (urlHash === undefined) {
+    return location.hash ? location.hash.substr(1) : '';
+  }
+
+  location.hash = urlHash;
+
+  return this;
+};
+
+
+LocationEmitter.prototype.replace = function replace(fullPath) {
+
+  fullPath || (fullPath = this._getFullPath());
+
+  if (this.html5) {
+
+    window.history.replaceState({}, null, fullPath);
+
+    return this._onPopState();
+  }
+
+  var location = window.location;
+  var href = location.href;
+  var hashIndex = href.indexOf('#');
+  var hashMark = location.pathname === '/'
+    ? '/#'
+    : '#';
+
+  if (hashIndex > -1) {
+    href = href.slice(0, hashIndex) + hashMark + fullPath;
+  }
+  else {
+    href = href + hashMark + fullPath;
+  }
+
+  location.replace(href);
+
+  return this._onHashChange({ newURL : href });
+};
+
+
+LocationEmitter.prototype.onChange = function onChange(subscriber) {
+
+  this._subscribers.push(subscriber);
+
+  return function unsubscribe() {
+
+    var remaining = [];
+    var l = this._subscribers.length;
+
+    while (l--) {
+      if (this._subscribers[l] !== subscriber) {
+        remaining.push(this._subscribers[l]);
       }
     }
 
-    return this.hash(fullPath);
-  },
+    this._subscribers = remaining;
+  }.bind(this);
+};
 
 
-  hash: function (urlHash) {
+LocationEmitter.prototype._getFullPath = function _getFullPath() {
 
-    var location = window.location;
+  var location = window.location;
 
-    if (urlHash === undefined) {
-      return location.hash ? location.hash.substr(1) : '';
-    }
-
-    location.hash = urlHash;
-
-    return this;
-  },
+  return location.pathname + location.search + location.hash;
+};
 
 
-  replace: function (fullPath) {
+LocationEmitter.prototype._setFullPath = function _setFullPath(fullPath) {
 
-    fullPath || (fullPath = this._getFullPath());
+  window.history.pushState({}, null, fullPath);
 
-    if (this.html5) {
-
-      window.history.replaceState({}, null, fullPath);
-
-      return this._onPopState();
-    }
-
-    var location = window.location;
-    var href = location.href;
-    var hashIndex = href.indexOf('#');
-    var hashMark = location.pathname === '/'
-      ? '/#'
-      : '#';
-
-    if (hashIndex > -1) {
-      href = href.slice(0, hashIndex) + hashMark + fullPath;
-    }
-    else {
-      href = href + hashMark + fullPath;
-    }
-
-    location.replace(href);
-
-    return this._onHashChange({ newURL : href });
-  },
+  return this._onPopState();
+};
 
 
-  _getFullPath: function () {
+LocationEmitter.prototype._onHashChange = function _onHashChange() {
 
-    var location = window.location;
+  this._emit(this.hash());
 
-    return location.pathname + location.search + location.hash;
-  },
-
-
-  _setFullPath: function (fullPath) {
-
-    window.history.pushState({}, null, fullPath);
-
-    return this._onPopState();
-  },
+  return this;
+};
 
 
-  _onHashChange: function () {
+LocationEmitter.prototype._onPopState = function _onPopState() {
 
-    this.emit('urlchange', this.hash());
+  this._emit(this._getFullPath());
 
-    return this;
-  },
+  return this;
+};
 
 
-  _onPopState: function () {
+LocationEmitter.prototype._emit = function _emit(path) {
 
-    this.emit('urlchange', this._getFullPath());
+  var l = this._subscribers.length;
 
-    return this;
+  while (l--) {
+    this._subscribers[l](path);
   }
-
-});
+};
