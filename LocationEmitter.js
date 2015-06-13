@@ -44,7 +44,9 @@ LocationEmitter.prototype.listen = function listen() {
 LocationEmitter.prototype.url = function url(fullPath) {
 
   if (fullPath === undefined) {
-    return this.html5 ? this._getFullPath() : this.hash();
+    return this.html5
+      ? this._getFullPath()
+      : this.hash();
   }
   else if (this.html5){
     return this._setFullPath(fullPath);
@@ -59,7 +61,9 @@ LocationEmitter.prototype.hash = function hash(urlHash) {
   var location = window.location;
 
   if (urlHash === undefined) {
-    return location.hash ? location.hash.substr(1) : '';
+    return location.hash
+      ? location.hash.substr(1)
+      : '';
   }
 
   location.hash = urlHash;

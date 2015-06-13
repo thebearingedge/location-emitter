@@ -165,6 +165,13 @@ describe('LocationEmitter', function () {
       expect(urlHash).to.equal('baz');
     });
 
+
+    it('should return an empty string if hash is empty', function () {
+      le = new LocationEmitter();
+
+      expect(le.hash()).to.equal('');
+    });
+
   });
 
 
@@ -182,22 +189,22 @@ describe('LocationEmitter', function () {
     });
 
 
-    it('should call `history.replaceState` and call handler', function () {
+    it('should replace state and call handler', function () {
       le = new LocationEmitter();
       var newUrl = '/foo/bar';
-      var replaceStateStub = window.history.replaceState;
+      var replaceStateSpy = window.history.replaceState;
       var onPopStub = sinon.stub(le, '_onPopState');
 
       le.replace(newUrl);
 
-      expect(replaceStateStub.calledOnce).to.equal(true);
-      expect(replaceStateStub).to.have.been.calledWithExactly({}, null, newUrl);
+      expect(replaceStateSpy.calledOnce).to.equal(true);
+      expect(replaceStateSpy).to.have.been.calledWithExactly({}, null, newUrl);
 
       expect(onPopStub.calledOnce).to.equal(true);
     });
 
 
-    it('should call `location.replace` with hash and emit change', function () {
+    it('should replace location and emit change', function () {
       le = new LocationEmitter({ html5: false });
       var newUrl = '/foo/bar';
       var replacement = 'http://www.example.com/#/foo/bar';
@@ -214,36 +221,55 @@ describe('LocationEmitter', function () {
     });
 
 
-    it('should call `location.replace` new hash and emit change', function () {
+    it('should replace location given a new hash and emit change', function () {
       le = new LocationEmitter({ html5: false });
       window.location.href = 'http://www.example.com';
       window.location.hash = '/about';
       var newUrl = '/contact';
-      var replaced = 'http://www.example.com/#/contact';
+      var replacement = 'http://www.example.com/#/contact';
       var replaceStub = sinon.spy(window.location, 'replace');
       var emitStub = sinon.spy(le, '_emit');
 
       le.replace(newUrl);
 
       expect(replaceStub.calledOnce).to.equal(true);
-      expect(replaceStub).to.have.been.calledWithExactly(replaced);
+      expect(replaceStub).to.have.been.calledWithExactly(replacement);
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been.calledWithExactly('/contact');
     });
 
+
+    it('should support "non-path" hashes', function () {
+      le = new LocationEmitter({ html5: false });
+      window.location.href = 'http://www.example.com/foo';
+      window.location.hash = 'bar';
+      var newUrl = 'baz';
+      var replacement = 'http://www.example.com/foo#baz';
+      var replaceStub = sinon.spy(window.location, 'replace');
+      var emitStub = sinon.spy(le, '_emit');
+
+      le.replace(newUrl);
+
+      expect(replaceStub.calledOnce).to.equal(true);
+      expect(replaceStub).to.have.been.calledWithExactly(replacement);
+
+      expect(emitStub.calledOnce).to.equal(true);
+      expect(emitStub).to.have.been.calledWithExactly('baz');
+    });
+
   });
 
 
-  describe('#onChange(observer)', function () {
+  describe('#onChange(subscriber)', function () {
 
-    it('should register a change observer', function () {
+    it('should register a change subscriber', function () {
       le = new LocationEmitter();
-      var observer = function () {};
+      var subscriber = function () {};
 
-      le.onChange(observer);
+      le.onChange(subscriber);
 
-      expect(le._subscribers[0]).to.equal(observer);
+      expect(le._subscribers[0]).to.equal(subscriber);
     });
 
 
