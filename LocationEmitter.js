@@ -96,7 +96,9 @@ LocationEmitter.prototype.replace = function replace(fullPath) {
     href = current.slice(0, currentHashIndex) + '#' + fullPath;
   }
   else {
-    href = current + '/#' + fullPath;
+    href = current[current.length - 1] !== '/'
+      ? current + '/#' + fullPath
+      : current + '#' + fullPath;
   }
 
   location.replace(href);

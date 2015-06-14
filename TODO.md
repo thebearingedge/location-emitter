@@ -1,3 +1,3 @@
 
 - something something IE and addEventListener...
-- clean up hash and replace
+- prevent hitting pushState if path is not new
