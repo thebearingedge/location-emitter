@@ -88,6 +88,30 @@ describe('LocationEmitter', function () {
       expect(addEventSpy).to.have.been.calledWith('popstate');
     });
 
+
+    it('should emit the current hash', function () {
+      window.location.hash = '/xyzzy';
+      le = new LocationEmitter({ html5: false });
+      var emitSpy = sinon.spy(le, '_emit');
+
+      le.listen();
+
+      expect(emitSpy.calledOnce).to.equal(true);
+      expect(emitSpy).to.have.been.calledWithExactly('/xyzzy');
+    });
+
+
+    it('should emit the current path', function () {
+      window.location.pathname = '/grault/xyzzy';
+      le = new LocationEmitter();
+      var emitSpy = sinon.spy(le, '_emit');
+
+      le.listen();
+
+      expect(emitSpy.calledOnce).to.equal(true);
+      expect(emitSpy).to.have.been.calledWithExactly('/grault/xyzzy');
+    });
+
   });
 
 
