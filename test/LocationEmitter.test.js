@@ -189,6 +189,20 @@ describe('LocationEmitter', function () {
     });
 
 
+    it('should default to a root hash path', function () {
+      window.location.href = 'http://www.example.com';
+      le = new LocationEmitter({ html5: false });
+      var replaceSpy = sinon.spy(window.location, 'replace');
+      sinon.stub(le, '_onPopState');
+
+      le.replace();
+
+      expect(replaceSpy.calledOnce).to.equal(true);
+      expect(replaceSpy).to.have.been
+        .calledWithExactly('http://www.example.com/#/');
+    });
+
+
     it('should replace state and call handler', function () {
       le = new LocationEmitter();
       var newUrl = '/foo/bar';
@@ -217,7 +231,7 @@ describe('LocationEmitter', function () {
     });
 
 
-    it('should replace location given a new hash and emit change', function () {
+    it('should replace location, given new hash and emit change', function () {
       window.location.href = 'http://www.example.com';
       window.location.hash = '/about';
       le = new LocationEmitter({ html5: false });
@@ -257,6 +271,19 @@ describe('LocationEmitter', function () {
       expect(replaceSpy).to.have.been
         .calledWithExactly('http://www.example.com/#/');
     });
+
+
+    it('should replace location that already has hash', function () {
+      window.location.href = 'http://www.example.com/#/';
+      var replaceSpy = sinon.spy(window.location, 'replace');
+      le = new LocationEmitter({ html5: false });
+
+      le.replace('/foo');
+
+      expect(replaceSpy).to.have.been
+        .calledWithExactly('http://www.example.com/#/foo');
+    });
+
 
   });
 
@@ -330,12 +357,24 @@ describe('LocationEmitter', function () {
     it('should emit the new hash fragment', function () {
       window.location.href = 'www.example.com/#/hash';
       le = new LocationEmitter();
+      le.listen();
       var emitStub = sinon.stub(le, '_emit');
 
       le._onHashChange();
 
       expect(emitStub.calledOnce).to.equal(true);
       expect(emitStub).to.have.been.calledWithExactly('/hash');
+    });
+
+
+    it('should not emit if le is not listening', function () {
+      window.location.href = 'www.example.com/#/hash';
+      le = new LocationEmitter();
+      var emitStub = sinon.stub(le, '_emit');
+
+      le._onHashChange();
+
+      expect(emitStub.calledOnce).to.equal(false);
     });
 
   });
@@ -345,6 +384,7 @@ describe('LocationEmitter', function () {
 
     it('should emit the new full path', function () {
       le = new LocationEmitter();
+      le.listen();
       var emitStub = sinon.stub(le, '_emit');
       window.location.href = 'http://www.example.com/full-path?and=query';
 

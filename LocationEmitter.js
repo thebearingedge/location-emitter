@@ -18,6 +18,7 @@ function LocationEmitter(options) {
     : false;
 
   this._subscribers = [];
+  this._listening = false;
 
 }
 
@@ -38,6 +39,7 @@ LocationEmitter.prototype.listen = function listen() {
   window.addEventListener(eventType, listener.bind(this));
 
   this._emit(this.url());
+  this._listening = true;
 
   return this;
 };
@@ -78,28 +80,28 @@ LocationEmitter.prototype.replace = function replace(fullPath) {
 
   fullPath || (fullPath = this.html5
                           ? this._getFullPath()
-                          : this.hash() || '');
+                          : this.hash() || '/');
 
   if (this.html5) return this._replaceState(fullPath);
 
   var location = window.location;
+
   var current, currentHashIndex, currentHasHash, href;
 
   current = location.href;
   currentHashIndex = current.indexOf('#');
   currentHasHash = currentHashIndex !== -1;
 
-  if (!currentHasHash && (current[current.length - 1] !== '/')) {
-    href = current + '/#' + (fullPath || '/');
-  }
-  else if (currentHasHash) {
+  if (currentHasHash) {
     href = current.slice(0, currentHashIndex) + '#' + fullPath;
   }
-  else if (current[current.length - 1] === '/') {
-    href = current + '#/' + fullPath;
+  else {
+    href = current + '/#' + fullPath;
   }
 
-  return location.replace(href);
+  location.replace(href);
+
+  return this;
 };
 
 
@@ -141,13 +143,13 @@ LocationEmitter.prototype._setFullPath = function _setFullPath(fullPath) {
 
 LocationEmitter.prototype._onHashChange = function _onHashChange() {
 
-  this._emit(this.hash());
+  if (this._listening) this._emit(this.hash());
 };
 
 
 LocationEmitter.prototype._onPopState = function _onPopState() {
 
-  this._emit(this._getFullPath());
+  if (this._listening) this._emit(this._getFullPath());
 };
 
 

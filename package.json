@@ -1,6 +1,6 @@
 {
   "name": "location-emitter",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "An observable facade for `window.location`",
   "main": "LocationEmitter.js",
   "scripts": {
