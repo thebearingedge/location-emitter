@@ -81,6 +81,7 @@ LocationEmitter.prototype.hash = function hash(urlHash) {
 LocationEmitter.prototype.replace = function replace(fullPath) {
 
   if (this.html5) {
+
     fullPath || (fullPath = this._getFullPath());
 
     return this._replaceState(fullPath);
@@ -143,7 +144,9 @@ LocationEmitter.prototype._setFullPath = function _setFullPath(fullPath) {
 
   window.history.pushState({}, null, fullPath);
 
-  return this._onPopState();
+  this._onPopState();
+
+  return this;
 };
 
 
@@ -163,7 +166,9 @@ LocationEmitter.prototype._replaceState = function _replaceState(fullPath) {
 
   window.history.replaceState({}, null, fullPath);
 
-  return this._onPopState();
+  this._onPopState();
+
+  return this;
 };
 
 
