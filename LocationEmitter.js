@@ -78,11 +78,13 @@ LocationEmitter.prototype.hash = function hash(urlHash) {
 
 LocationEmitter.prototype.replace = function replace(fullPath) {
 
-  fullPath || (fullPath = this.html5
-                          ? this._getFullPath()
-                          : this.hash() || '/');
+  if (this.html5) {
+    fullPath || (fullPath = this._getFullPath());
 
-  if (this.html5) return this._replaceState(fullPath);
+    return this._replaceState(fullPath);
+  }
+
+  fullPath || (fullPath = this.hash() || '/');
 
   var location = window.location;
 

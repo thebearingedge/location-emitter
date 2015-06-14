@@ -203,20 +203,6 @@ describe('LocationEmitter', function () {
     });
 
 
-    it('should default to a root hash path', function () {
-      window.location.href = 'http://www.example.com';
-      le = new LocationEmitter({ html5: false });
-      var replaceSpy = sinon.spy(window.location, 'replace');
-      sinon.stub(le, '_onPopState');
-
-      le.replace();
-
-      expect(replaceSpy.calledOnce).to.equal(true);
-      expect(replaceSpy).to.have.been
-        .calledWithExactly('http://www.example.com/#/');
-    });
-
-
     it('should replace state and call handler', function () {
       le = new LocationEmitter();
       var newUrl = '/foo/bar';
@@ -273,18 +259,6 @@ describe('LocationEmitter', function () {
 
       expect(replaceSpy.calledOnce).to.equal(true);
       expect(replaceSpy).to.have.been.calledWithExactly(replacement);
-    });
-
-
-    it('should set a "/" hash path', function () {
-      window.location.href = 'http://www.example.com';
-      var replaceSpy = sinon.spy(window.location, 'replace');
-      le = new LocationEmitter({ html5: false });
-
-      le.replace();
-
-      expect(replaceSpy).to.have.been
-        .calledWithExactly('http://www.example.com/#/');
     });
 
 
