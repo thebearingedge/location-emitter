@@ -76,7 +76,9 @@ LocationEmitter.prototype.hash = function hash(urlHash) {
 
 LocationEmitter.prototype.replace = function replace(fullPath) {
 
-  fullPath || (fullPath = this._getFullPath());
+  fullPath || (fullPath = this.html5
+                          ? this._getFullPath()
+                          : this.hash() || '');
 
   if (this.html5) return this._replaceState(fullPath);
 
@@ -88,10 +90,13 @@ LocationEmitter.prototype.replace = function replace(fullPath) {
   currentHasHash = currentHashIndex !== -1;
 
   if (!currentHasHash && (current[current.length - 1] !== '/')) {
-    href = current + '/#' + fullPath;
+    href = current + '/#' + (fullPath || '/');
   }
-  else {
+  else if (currentHasHash) {
     href = current.slice(0, currentHashIndex) + '#' + fullPath;
+  }
+  else if (current[current.length - 1] === '/') {
+    href = current + '#/' + fullPath;
   }
 
   return location.replace(href);
