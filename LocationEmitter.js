@@ -25,6 +25,8 @@ function LocationEmitter(options) {
 
 LocationEmitter.prototype.listen = function listen() {
 
+  if (this._listening) return;
+
   var eventType, listener;
 
   if (this.html5) {
